@@ -47,6 +47,6 @@ export default () => (
         appReducer={reducer}
         deviceSelect={<RssiDeviceSelect />}
         sidePanel={<SidePanel />}
-        panes={[{ name: 'RSSI Viewer', Main: Chart }]}
+        panes={[{ name: 'RSSI Viewer(Hephi)', Main: Chart }]}
     />
 );

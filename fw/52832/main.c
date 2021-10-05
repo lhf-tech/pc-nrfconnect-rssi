@@ -42,28 +42,30 @@
 #include "app_uart.h"
 #include "nrf_delay.h"
 #include "bsp.h"
-
-#define FREQ_ADV_CHANNEL_37         2      /**<Radio channel number which corresponds with 37-th BLE channel **/
-#define FREQ_ADV_CHANNEL_38         26     /**<Radio channel number which corresponds with 38-th BLE channel **/
-#define FREQ_ADV_CHANNEL_39         80     /**<Radio channel number which corresponds with 39-th BLE channel **/
-#define UART_TX_BUF_SIZE            512    /**< UART TX buffer size. */
+#define FREQ_EXTEND					40
+#define FREQ_MAX					(FREQ_EXTEND + 127)
+#define FREQ_ADV_CHANNEL_37         (FREQ_EXTEND + 2)      /**<Radio channel number which corresponds with 37-th BLE channel **/
+#define FREQ_ADV_CHANNEL_38         (FREQ_EXTEND + 26)     /**<Radio channel number which corresponds with 38-th BLE channel **/
+#define FREQ_ADV_CHANNEL_39         (FREQ_EXTEND + 80)     /**<Radio channel number which corresponds with 39-th BLE channel **/
+#define UART_TX_BUF_SIZE            2048    /**< UART TX buffer size. */
 #define UART_RX_BUF_SIZE            2048   /**< UART RX buffer size. */
-#define NEW_PACKET_BYTE             255
+#define NEW_PACKET_BYTE             0xFF
 #define RSSI_NO_SIGNAL              127    /**< Minimum value of RSSISAMPLE */
 
 #if defined ( __CC_ARM )
-static const char version_str[16] __attribute__((at(0x2000))) = "rssi-fw-1.0.0\0\0\0";
+static const char version_str[16] __attribute__((at(0x2000))) = "rssi-fw-1.10.1\0\0";
 #endif
 
 
 static uint8_t min_channel        = 0;     /**< Lowest scanned channel if adv_channels_en = true */
-static uint8_t max_channel        = 80;    /**< highest scanned channel if adv_channels_en = true */
+static uint8_t max_channel        = FREQ_MAX;     /**< highest scanned channel if adv_channels_en = true */
 static uint32_t sweep_delay       = 1000;
 static uint32_t scan_repeat_times = 1;
 
 static bool uart_error = false;
 static bool uart_send = false;
 static bool scan_ble_adv = false;
+static bool led_flash = true;
 
 void uart_put(uint8_t c)
 {
@@ -87,7 +89,7 @@ void set_uart_send_enable(bool enable)
 
 void uart_send_packet(uint8_t channel_number, uint8_t rssi)
 {
-	uart_put(0xff);
+	uart_put(NEW_PACKET_BYTE);
 	uart_put(channel_number);
 	uart_put(rssi);
 }
@@ -115,8 +117,13 @@ void rssi_measurer_configure_radio(void)
 uint8_t rssi_measurer_scan_channel(uint8_t channel_number)
 {
 	uint8_t sample;
-
-	NRF_RADIO->FREQUENCY  = channel_number;
+	if(channel_number >= FREQ_EXTEND)
+	{
+		NRF_RADIO->FREQUENCY  = channel_number - FREQ_EXTEND;
+	}else{
+		NRF_RADIO->FREQUENCY  = (channel_number) | (1 << 8);
+	}
+	
 	NRF_RADIO->TASKS_RXEN = 1;
 
 	WAIT_FOR(NRF_RADIO->EVENTS_READY);
@@ -190,14 +197,14 @@ void uart_get_line()
 		}
 		if (strncmp(q, "channel min ", 12) == 0) {
 			q += 12;
-			int d = atoi(q);
-			min_channel = MAX(1, MIN(d, max_channel));
+			int d = atoi(q) + FREQ_EXTEND;
+			min_channel = MAX(0, MIN(d, max_channel));
 			return;
 		}
 		if (strncmp(q, "channel max ", 12) == 0) {
 			q += 12;
-			int d = atoi(q);
-			max_channel = MAX(min_channel, MIN(d, 100));
+			int d = atoi(q) + FREQ_EXTEND;
+			max_channel = MAX(min_channel, MIN(d, FREQ_MAX));
 			return;
 		}
 		return;
@@ -222,7 +229,8 @@ void uart_get_line()
 		return;
 	}
 	if (strncmp(q, "led", 3) == 0) {
-		bsp_board_led_invert(0);
+		led_flash = led_flash ? false : true;
+		bsp_board_led_off(0);
 		return;
 	}
 }
@@ -246,7 +254,10 @@ void uart_loopback()
 	}
 
 	uart_get_line();
-
+	if(led_flash)
+	{
+		bsp_board_led_invert(0);
+	}
 	if (uart_error) {
 		nrf_delay_ms(MAX(sweep_delay, 500));
 		uart_error = false;

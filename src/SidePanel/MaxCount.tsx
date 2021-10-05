@@ -42,7 +42,7 @@ import { NumberInlineInput, Slider } from 'pc-nrfconnect-shared';
 import { setMaxScans as setMaxScansAction } from '../actions';
 import { getMaxScans } from '../reducer';
 
-const range = { min: 1, max: 100 };
+const range = { min: 1, max: 1000 };
 const sliderId = 'max-scans-slider';
 
 export default () => {

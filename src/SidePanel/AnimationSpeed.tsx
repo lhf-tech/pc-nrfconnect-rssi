@@ -42,7 +42,7 @@ import { NumberInlineInput, Slider } from 'pc-nrfconnect-shared';
 import { setAnimationDuration as setAnimationDurationAction } from '../actions';
 import { getAnimationDuration } from '../reducer';
 
-const range = { min: 10, max: 1000 };
+const range = { min: 10, max: 10000 };
 const sliderId = 'animation-duration-slider';
 
 export default () => {
