@@ -61,7 +61,7 @@ const deviceSetup = {
     dfu: {
         pca10059: {
             application: getAppFile('fw/rssi-10059-hephi.hex'),
-            semver: 'rssi_cdc_acm 1.10.1+dfuOct  5 2021 08:31:26',
+            semver: 'rssi_cdc_acm 1.10.1+dfuOct--5-2021-08-31-26',
         },
     },
     jprog: {

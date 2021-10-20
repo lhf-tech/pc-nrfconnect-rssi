@@ -1,0 +1,5 @@
+{
+    "nrf-connect.topdir": "",
+    "nrf-connect.toolchain.path": "PATH",
+    "C_Cpp.default.configurationProvider": "nrf-connect"
+}

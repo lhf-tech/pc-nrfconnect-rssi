@@ -1,11 +1,11 @@
 {
   "name": "pc-nrfconnect-rssi",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "description": "Live visualization of RSSI per frequency for nRF52832",
   "displayName": "RSSI Viewer(Hephi)",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/lhf-tech/pc-nrfconnect-rssi.git"
   },
   "author": "Hephi",
   "license": "SEE LICENSE IN LICENSE",

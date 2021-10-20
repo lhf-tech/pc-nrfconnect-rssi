@@ -55,25 +55,25 @@ import './chart.scss';
 
 Chart.plugins.register(ChartDataLabels);
 
-const FREQ_ADV_CHANNEL_37 = 2; /** <Radio channel number which corresponds with 37-th BLE channel * */
-const FREQ_ADV_CHANNEL_38 = 26; /** <Radio channel number which corresponds with 38-th BLE channel * */
-const FREQ_ADV_CHANNEL_39 = 80; /** <Radio channel number which corresponds with 39-th BLE channel * */
+// const FREQ_ADV_CHANNEL_37 = 2; /** <Radio channel number which corresponds with 37-th BLE channel * */
+// const FREQ_ADV_CHANNEL_38 = 26; /** <Radio channel number which corresponds with 38-th BLE channel * */
+// const FREQ_ADV_CHANNEL_39 = 80; /** <Radio channel number which corresponds with 39-th BLE channel * */
 // const rssiColors = color.bar.normal;
 
 // const rssiMaxColors = color.bar.normalMax;
 
 const rssiColors = nrfChannels.map(channel =>
-    channel === FREQ_ADV_CHANNEL_37 ||
-    channel === FREQ_ADV_CHANNEL_38 ||
-    channel === FREQ_ADV_CHANNEL_39
-        ? color.bar.advertisement
-        : color.bar.normal
+    // channel === FREQ_ADV_CHANNEL_37 ||
+    // channel === FREQ_ADV_CHANNEL_38 ||
+    // channel === FREQ_ADV_CHANNEL_39
+    channel < 0 || channel > 83 ? color.bar.advertisement : color.bar.normal
 );
 
 const rssiMaxColors = nrfChannels.map(channel =>
-    channel === FREQ_ADV_CHANNEL_37 ||
-    channel === FREQ_ADV_CHANNEL_38 ||
-    channel === FREQ_ADV_CHANNEL_39
+    // channel === FREQ_ADV_CHANNEL_37 ||
+    // channel === FREQ_ADV_CHANNEL_38 ||
+    // channel === FREQ_ADV_CHANNEL_39
+    channel < 0 || channel > 83
         ? color.bar.advertisementMax
         : color.bar.normalMax
 );
@@ -142,7 +142,7 @@ export default () => {
                                 },
                             },
                             {
-                                label: 'bgBars',
+                                label: 'default',
                                 backgroundColor: color.bar.background,
                                 borderWidth: 0,
                                 data: Array(168).fill(levelMax),
@@ -154,7 +154,10 @@ export default () => {
                         animation: { duration: animationDuration },
                         maintainAspectRatio: false,
                         legend: { display: false },
-                        tooltips: { enabled: false },
+                        tooltips: {
+                            enabled: true,
+                            mode: 'index',
+                        },
                         scales: {
                             xAxes: [
                                 {
