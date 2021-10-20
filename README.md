@@ -3,7 +3,7 @@
 [![Build Status](https://dev.azure.com/NordicSemiconductor/Wayland/_apis/build/status/NordicSemiconductor.pc-nrfconnect-rssi?branchName=master)](https://dev.azure.com/NordicSemiconductor/Wayland/_build/latest?definitionId=9&branchName=master)
 [![License](https://img.shields.io/badge/license-Modified%20BSD%20License-blue.svg)](LICENSE)
 
-*nRF Connect RSSI Viewer* is a tool that shows dBm per frequency in the 2400-2480 MHz range, and allows the user to tweak settings like sweep delay and animation duration.
+*nRF Connect RSSI Viewer* is a tool that shows dBm per frequency in the 2360-2527 MHz range, and allows the user to tweak settings like sweep delay and animation duration.
 
 ![screenshot](resources/screenshot.gif)
 
