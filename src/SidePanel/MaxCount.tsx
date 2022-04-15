@@ -12,7 +12,7 @@ import { NumberInlineInput, Slider } from 'pc-nrfconnect-shared';
 import { setMaxScans as setMaxScansAction } from '../actions';
 import { getMaxScans } from '../reducer';
 
-const range = { min: 1, max: 100 };
+const range = { min: 1, max: 1000 };
 const sliderId = 'max-scans-slider';
 
 export default () => {
@@ -27,7 +27,7 @@ export default () => {
     return (
         <>
             <Form.Label htmlFor={sliderId}>
-                Show max for last{' '}
+                Show maximum for the last{' '}
                 <NumberInlineInput
                     value={maxScans}
                     range={range}

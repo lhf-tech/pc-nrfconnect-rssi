@@ -13,7 +13,7 @@ import { setDelay as setDelayAction } from '../actions';
 import { getDelay } from '../reducer';
 import { writeDelay } from '../serialport';
 
-const range = { min: 5, max: 1000 };
+const range = { min: 2, max: 1000 };
 const sliderId = 'delay-slider';
 
 export default () => {
