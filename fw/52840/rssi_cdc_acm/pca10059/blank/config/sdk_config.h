@@ -71,21 +71,21 @@
 
 
 #ifndef APP_VERSION_MAJOR
-#define APP_VERSION_MAJOR 2
+#define APP_VERSION_MAJOR 1
 #endif
 
 // <o> APP_VERSION_MINOR - Minor version  <0-1000>
 
 
 #ifndef APP_VERSION_MINOR
-#define APP_VERSION_MINOR 0
+#define APP_VERSION_MINOR 10
 #endif
 
 // <o> APP_VERSION_PATCH - Patch version  <0-1000>
 
 
 #ifndef APP_VERSION_PATCH
-#define APP_VERSION_PATCH 0
+#define APP_VERSION_PATCH 1
 #endif
 
 // <s> APP_VERSION_PRERELEASE - Prerelease, eg. "-1.alpha"
@@ -120,10 +120,9 @@
 //==========================================================
 // <h> nrf_usb_dfu_trigger - USB DFU Trigger library
 
-#define BSP_SELF_PINRESET_PIN  SER_CONN_CHIP_RESET_PIN
-
 //==========================================================
 // <q> NRF_USB_DFU_TRIGGER_USB_SHARED  - Flag indicating whether USB is used for other purposes in the application.
+
 
 #ifndef NRF_DFU_TRIGGER_USB_USB_SHARED
 #define NRF_DFU_TRIGGER_USB_USB_SHARED 1

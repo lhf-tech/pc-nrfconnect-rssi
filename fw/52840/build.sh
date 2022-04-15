@@ -27,4 +27,4 @@ $ABS_PATH/bootstrap.sh \
 
 command $KEIL -b rssi_cdc_acm/pca10059/blank/arm5_no_packs/rssi_cdc_acm.uvprojx
 command $KEIL -b rssi_cdc_acm/pca10056/blank/arm5_no_packs/rssi_cdc_acm.uvprojx
-# command $KEIL -b rssi_uart/rssi_pca10040.uvprojx
+#command $KEIL -b rssi_uart/rssi_pca10040.uvprojx

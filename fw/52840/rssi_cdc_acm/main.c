@@ -63,12 +63,30 @@
 
 #include "boards.h"
 
-#define FREQ_ADV_CHANNEL_37       (2)      /**<Radio channel number which corresponds with 37-th BLE channel **/
-#define FREQ_ADV_CHANNEL_38       (26)     /**<Radio channel number which corresponds with 38-th BLE channel **/
-#define FREQ_ADV_CHANNEL_39       (80)     /**<Radio channel number which corresponds with 39-th BLE channel **/
+#define FREQ_EXTEND					40
+#define FREQ_MAX					(FREQ_EXTEND + 127)
+#define FREQ_ADV_CHANNEL_37         (FREQ_EXTEND + 2)      /**<Radio channel number which corresponds with 37-th BLE channel **/
+#define FREQ_ADV_CHANNEL_38         (FREQ_EXTEND + 26)     /**<Radio channel number which corresponds with 38-th BLE channel **/
+#define FREQ_ADV_CHANNEL_39         (FREQ_EXTEND + 80)     /**<Radio channel number which corresponds with 39-th BLE channel **/
+#define UART_TX_BUF_SIZE            2048    /**< UART TX buffer size. */
+#define UART_RX_BUF_SIZE            2048   /**< UART RX buffer size. */
+#define NEW_PACKET_BYTE             0xFF
+#define RSSI_NO_SIGNAL              127    /**< Minimum value of RSSISAMPLE */
+
+
 #define FIRST_CHANNEL             (0) 
-#define LAST_CHANNEL              (80)
-#define RSSI_NO_SIGNAL            (127)    /**< Minimum value of RSSISAMPLE */
+#define LAST_CHANNEL              (FREQ_MAX)
+
+//#define FREQ_ADV_CHANNEL_37       (2)      /**<Radio channel number which corresponds with 37-th BLE channel **/
+//#define FREQ_ADV_CHANNEL_38       (26)     /**<Radio channel number which corresponds with 38-th BLE channel **/
+//#define FREQ_ADV_CHANNEL_39       (80)     /**<Radio channel number which corresponds with 39-th BLE channel **/
+//#define FIRST_CHANNEL             (0) 
+//#define LAST_CHANNEL              (80)
+//#define RSSI_NO_SIGNAL            (127)    /**< Minimum value of RSSISAMPLE */
+
+
+static uint8_t min_channel        = 0;     /**< Lowest scanned channel if adv_channels_en = true */
+static uint8_t max_channel        = FREQ_MAX;     /**< highest scanned channel if adv_channels_en = true */
 
 enum {
     LED_USB_RESUME = 0,
@@ -81,7 +99,7 @@ enum {
 	DATA_INTERFACE,
 };
 
-#define M_FIFO_BUFSIZE            (256)
+#define M_FIFO_BUFSIZE            (1024)
 
 static void cdc_acm_user_ev_handler(app_usbd_class_inst_t const * p_inst,
                                     app_usbd_cdc_acm_user_event_t event);
@@ -204,7 +222,7 @@ void queue_packet(uint8_t channel_number, uint8_t rssi)
 {
 	size_t length = 3;
 	uint8_t pkt[3];
-	pkt[0] = 0xff;
+	pkt[0] = NEW_PACKET_BYTE;
 	pkt[1] = channel_number;
 	pkt[2] = rssi;
 	
@@ -219,7 +237,7 @@ void queue_packet(uint8_t channel_number, uint8_t rssi)
 void set_scan_ble_adv(bool enable)
 {
 	scan_ble_adv = enable;
-	for (uint8_t i = FIRST_CHANNEL; i <= LAST_CHANNEL; ++i)
+	for (uint8_t i = min_channel; i <= max_channel; ++i)
 	{
 		queue_packet(i, RSSI_NO_SIGNAL);
 	}
@@ -241,7 +259,12 @@ uint8_t rssi_measurer_scan_channel(uint8_t channel_number)
 {
 	uint8_t sample;
 
-	NRF_RADIO->FREQUENCY  = channel_number;
+	if(channel_number >= FREQ_EXTEND)
+	{
+		NRF_RADIO->FREQUENCY  = channel_number - FREQ_EXTEND;
+	}else{
+		NRF_RADIO->FREQUENCY  = (channel_number) | (1 << 8);
+	}
 	NRF_RADIO->TASKS_RXEN = 1;
 
 	WAIT_FOR(NRF_RADIO->EVENTS_READY);
@@ -284,7 +307,7 @@ void rssi_measurer_timeout_handler(void* p_context)
 		sample = rssi_measurer_scan_channel_repeat(FREQ_ADV_CHANNEL_39);
 		queue_packet(FREQ_ADV_CHANNEL_39, sample);
 	} else {
-		for (uint8_t i = FIRST_CHANNEL; i <= LAST_CHANNEL; i++)
+		for (uint8_t i = min_channel; i <= max_channel; i++)
 		{
 			sample = rssi_measurer_scan_channel_repeat(i);
 			queue_packet(i, sample);
@@ -328,6 +351,18 @@ void get_line()
 			q += 7;
 			int d = atoi(q);
 			scan_repeat_times = MAX(1, MIN(d, 100));
+			return;
+		}
+		if (strncmp(q, "channel min ", 12) == 0) {
+			q += 12;
+			int d = atoi(q) + FREQ_EXTEND;
+			min_channel = MAX(0, MIN(d, max_channel));
+			return;
+		}
+		if (strncmp(q, "channel max ", 12) == 0) {
+			q += 12;
+			int d = atoi(q) + FREQ_EXTEND;
+			max_channel = MAX(min_channel, MIN(d, FREQ_MAX));
 			return;
 		}
 		return;
