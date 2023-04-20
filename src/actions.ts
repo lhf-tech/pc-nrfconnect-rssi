@@ -9,12 +9,14 @@ export enum RssiActionType {
     PORT_OPENED = 'PORT_OPENED',
     PORT_CLOSED = 'PORT_CLOSED',
     SET_DELAY = 'SET_DELAY',
+    SET_OTHER = 'SET_OTHER',
     SET_MAX_SCANS = 'SET_MAX_SCANS',
     SET_SCAN_REPEAT = 'SET_SCAN_REPEAT',
     SET_ANIMATION_DURATION = 'SET_ANIMATION_DURATION',
     SET_CHANNEL_RANGE = 'SET_CHANNEL_RANGE',
     SET_LEVEL_RANGE = 'SET_LEVEL_RANGE',
     RECEIVE_RSSI_DATA = 'RECEIVE_RSSI_DATA',
+    RECEIVE_NO_RSSI_DATA = 'RECEIVE_NO_RSSI_DATA',
     CLEAR_RSSI_DATA = 'CLEAR_RSSI_DATA',
 }
 
@@ -48,6 +50,15 @@ interface SetDelay {
 export const setDelay = (delay: number): SetDelay => ({
     type: RssiActionType.SET_DELAY,
     delay,
+});
+
+interface SetOther {
+    type: RssiActionType.SET_OTHER;
+    other: string;
+}
+export const setOther = (other: string): SetOther => ({
+    type: RssiActionType.SET_OTHER,
+    other,
 });
 
 interface SetMaxScans {
@@ -108,6 +119,13 @@ export const receiveRssiData = (rawData: Buffer): ReceiveRssiData => ({
     rawData,
 });
 
+interface ReceiveNoRssiData {
+    type: RssiActionType.RECEIVE_NO_RSSI_DATA;
+}
+export const receiveNoRssiData = (): ReceiveNoRssiData => ({
+    type: RssiActionType.RECEIVE_NO_RSSI_DATA,
+});
+
 interface ClearRssiData {
     type: RssiActionType.CLEAR_RSSI_DATA;
 }
@@ -120,10 +138,12 @@ export type RssiAction =
     | PortOpened
     | PortClosed
     | SetDelay
+    | SetOther
     | SetMaxScans
     | SetScanRepeat
     | SetAnimationDuration
     | SetChannelRange
     | SetLevelRange
     | ReceiveRssiData
-    | ClearRssiData;
+    | ClearRssiData
+    | ReceiveNoRssiData;

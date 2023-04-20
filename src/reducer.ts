@@ -40,12 +40,16 @@ interface RssiState {
     readonly data: readonly (readonly number[])[];
     readonly dataMax: readonly number[];
     readonly delay: number;
+    readonly min: number;
+    readonly max: number;
+    readonly other: string;
     readonly scanRepeat: number;
     readonly maxScans: number;
     readonly animationDuration: number;
     readonly channelRange: NumberPair;
     readonly levelRange: NumberPair;
     readonly port: string | null;
+    readonly noDataReceived: boolean;
 }
 
 const initialState: RssiState = {
@@ -54,12 +58,16 @@ const initialState: RssiState = {
     data: initialData(),
     dataMax: [],
     delay: 10,
+    min: nrfChannelsRange.min,
+    max: nrfChannelsRange.max,
+    other: '',
     scanRepeat: 1,
     maxScans: 30,
     animationDuration: 500,
     channelRange: [nrfChannelsRange.min, nrfChannelsRange.max],
     levelRange: [initialLevelRange.min, initialLevelRange.max],
     port: null,
+    noDataReceived: false,
 };
 
 const updateData = (rawData: Buffer, draft: Draft<RssiState>) => {
@@ -69,18 +77,13 @@ const updateData = (rawData: Buffer, draft: Draft<RssiState>) => {
     //    draft.buffer.splice(0, draft.buffer.length - 504);
     // }
     while (draft.buffer.length >= 3) {
-        const newpck = draft.buffer.splice(0, 1)[0];
-        if (newpck !== 0xff) {
-            logger.error(
-                `new packet byte[${newpck} != 0xFF], continue processing the next byte`
-            );
-        } else {
-            const [ch, d] = draft.buffer.splice(0, 2);
-            if (ch !== 0xff && d !== 0xff) {
-                draft.data[ch] = [d, ...draft.data[ch]];
-                draft.data[ch].splice(draft.maxScans);
-                draft.dataMax[ch] = Math.min(...draft.data[ch]);
-            }
+        while (draft.buffer.length && draft.buffer.shift() !== 0xff);
+
+        const [ch, d] = draft.buffer.splice(0, 2);
+        if (ch !== 0xff && d !== 0xff) {
+            draft.data[ch] = [d, ...draft.data[ch]];
+            draft.data[ch].splice(draft.maxScans);
+            draft.dataMax[ch] = Math.min(...draft.data[ch]);
         }
     }
 };
@@ -98,13 +101,25 @@ export default produce((draft: Draft<RssiState>, action: RssiAction) => {
             updateData(action.rawData, draft);
             break;
 
+        case RssiActionType.RECEIVE_NO_RSSI_DATA:
+            if (draft.isPaused) {
+                break;
+            }
+            draft.noDataReceived = true;
+            break;
+
         case RssiActionType.CLEAR_RSSI_DATA:
             draft.data = initialData();
             draft.dataMax = [];
+            draft.noDataReceived = false;
             break;
 
         case RssiActionType.SET_DELAY:
             draft.delay = action.delay;
+            break;
+
+        case RssiActionType.SET_OTHER:
+            draft.other = action.other;
             break;
 
         case RssiActionType.SET_MAX_SCANS:
@@ -130,6 +145,7 @@ export default produce((draft: Draft<RssiState>, action: RssiAction) => {
         case RssiActionType.PORT_OPENED:
             draft.port = action.portName;
             draft.isPaused = false;
+            draft.noDataReceived = false;
             break;
 
         case RssiActionType.PORT_CLOSED:
@@ -138,7 +154,7 @@ export default produce((draft: Draft<RssiState>, action: RssiAction) => {
     }
 }, initialState);
 
-type AppState = NrfConnectState<RssiState>;
+export type AppState = NrfConnectState<RssiState>;
 
 const sortedPair = ([a, b]: NumberPair): NumberPair =>
     a < b ? [a, b] : [b, a];
@@ -151,6 +167,7 @@ export const getRssiMax = (state: AppState) => state.app.dataMax;
 export const getAnimationDuration = (state: AppState) =>
     state.app.animationDuration;
 export const getDelay = (state: AppState) => state.app.delay;
+export const getOther = (state: AppState) => state.app.other;
 export const getMaxScans = (state: AppState) => state.app.maxScans;
 export const getScanRepeat = (state: AppState) => state.app.scanRepeat;
 
@@ -161,3 +178,5 @@ export const getChannelRangeSorted = (state: AppState) =>
 export const getLevelRange = (state: AppState) => state.app.levelRange;
 export const getLevelRangeSorted = (state: AppState) =>
     sortedPair(getLevelRange(state));
+
+export const getNoDataReceived = (state: AppState) => state.app.noDataReceived;

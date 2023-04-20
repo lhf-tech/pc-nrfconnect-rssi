@@ -11,6 +11,7 @@ import { NumberInlineInput, Slider } from 'pc-nrfconnect-shared';
 
 import { setChannelRange } from '../actions';
 import { getChannelRange, nrfChannelsRange } from '../reducer';
+import { writeChannel } from '../serialport';
 
 const sliderId = 'ble-channel-slider';
 
@@ -31,6 +32,9 @@ export default () => {
                     onChange={(newMin: number) =>
                         dispatch(setChannelRange([newMin, max]))
                     }
+                    onChangeComplete={() =>
+                        writeChannel(channelRange[0], channelRange[1])
+                    }
                 />{' '}
                 to{' '}
                 <NumberInlineInput
@@ -38,6 +42,9 @@ export default () => {
                     range={{ min, max: nrfChannelsRange.max }}
                     onChange={(newMax: number) =>
                         dispatch(setChannelRange([min, newMax]))
+                    }
+                    onChangeComplete={() =>
+                        writeChannel(channelRange[0], channelRange[1])
                     }
                 />
             </Form.Label>
@@ -54,6 +61,9 @@ export default () => {
                     newValue =>
                         dispatch(setChannelRange([channelRange[0], newValue])),
                 ]}
+                onChangeComplete={() =>
+                    writeChannel(channelRange[0], channelRange[1])
+                }
             />
         </>
     );

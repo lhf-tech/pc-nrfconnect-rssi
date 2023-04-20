@@ -5,11 +5,12 @@
  */
 
 import React from 'react';
-import Button from 'react-bootstrap/Button';
 import { useDispatch, useSelector } from 'react-redux';
+import { Button, StartStopButton, useHotKey } from 'pc-nrfconnect-shared';
 
 import { clearRssiData, togglePause as togglePauseAction } from '../actions';
 import {
+    getChannelRange,
     getDelay,
     getIsConnected,
     getIsPaused,
@@ -17,28 +18,57 @@ import {
 } from '../reducer';
 import { pauseReading, resumeReading } from '../serialport';
 
-import './control-buttons.scss';
-
 export default () => {
     const isConnected = useSelector(getIsConnected);
     const isPaused = useSelector(getIsPaused);
     const delay = useSelector(getDelay);
     const scanRepeat = useSelector(getScanRepeat);
+    const channelRange = useSelector(getChannelRange);
+    const min = Math.min(...channelRange);
+    const max = Math.max(...channelRange);
     const dispatch = useDispatch();
 
     const togglePause = () => {
         dispatch(togglePauseAction());
 
         if (isPaused) {
-            resumeReading(delay, scanRepeat);
+            resumeReading(min, max, delay, scanRepeat);
         } else {
             pauseReading();
         }
     };
+
+    useHotKey({
+        hotKey: 'alt+r',
+        title: 'Reset',
+        isGlobal: false,
+        action: () => dispatch(clearRssiData()),
+    });
+
+    useHotKey(
+        {
+            hotKey: 'alt+t',
+            title: 'Start/Pause',
+            isGlobal: false,
+            action: () => togglePause(),
+        },
+        [isPaused]
+    );
+
     return (
-        <div className="control-buttons">
+        <>
+            <StartStopButton
+                startText="Start"
+                stopText="Pause"
+                started={!isPaused && isConnected}
+                onClick={togglePause}
+                disabled={!isConnected}
+            />
+
             <Button
                 variant="secondary"
+                className="w-100"
+                title="alt+r"
                 disabled={!isConnected}
                 onClick={() => {
                     dispatch(clearRssiData());
@@ -46,13 +76,6 @@ export default () => {
             >
                 Reset
             </Button>
-            <Button
-                variant="secondary"
-                disabled={!isConnected}
-                onClick={togglePause}
-            >
-                {isPaused ? 'Start' : 'Pause'}
-            </Button>
-        </div>
+        </>
     );
 };

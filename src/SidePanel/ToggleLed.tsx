@@ -5,8 +5,8 @@
  */
 
 import React from 'react';
-import Button from 'react-bootstrap/Button';
 import { useSelector } from 'react-redux';
+import { Button } from 'pc-nrfconnect-shared';
 
 import { getIsConnected } from '../reducer';
 import { toggleLED } from '../serialport';
@@ -15,7 +15,12 @@ export default () => {
     const isConnected = useSelector(getIsConnected);
 
     return (
-        <Button variant="secondary" disabled={!isConnected} onClick={toggleLED}>
+        <Button
+            variant="secondary"
+            className="w-100"
+            disabled={!isConnected}
+            onClick={toggleLED}
+        >
             Toggle LED
         </Button>
     );

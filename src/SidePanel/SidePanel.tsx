@@ -15,12 +15,15 @@ import LevelRange from './LevelRange';
 import MaxCount from './MaxCount';
 import SampleCount from './SampleCount';
 import ToggleLed from './ToggleLed';
+import WriteOther from './WriteOther';
 
 import './sidepanel.scss';
 
 export default () => (
     <SidePanel className="sidepanel">
-        <ControlButtons />
+        <Group heading="Controls">
+            <ControlButtons />
+        </Group>
 
         <Group heading="Sweep scan">
             <Delay />
@@ -39,6 +42,10 @@ export default () => (
 
         <Group heading="Device">
             <ToggleLed />
+        </Group>
+
+        <Group heading="Write Other">
+            <WriteOther />
         </Group>
     </SidePanel>
 );

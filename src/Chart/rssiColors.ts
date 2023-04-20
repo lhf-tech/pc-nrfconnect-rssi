@@ -11,8 +11,12 @@ export default {
     bar: {
         normal: colors.blueSlate,
         normalMax: colors.blueSlateLighter,
-        advertisement: colors.green,
-        advertisementMax: colors.greenLighter,
+        advertisement: colors.gray900,
+        advertisementMax: colors.red,
+        extend: colors.deepPurple,
+        extendMax: colors.purple,
+        extend2: colors.green,
+        extendMax2: colors.greenLighter,
         background: colors.gray50,
     },
 };
