@@ -1,4 +1,10 @@
 /*
+ * @文件路径         : \pc-nrfconnect-rssi\src\index.tsx
+ * @作者名称         : timetech
+ * @创建日期         : 2024-04-23 14:20:53
+ * @简要说明         : 
+ */
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
@@ -23,6 +29,6 @@ render(
         appReducer={reducer}
         deviceSelect={<DeviceSelector />}
         sidePanel={<SidePanel />}
-        panes={[{ name: 'RSSI Viewer', Main: Chart }]}
+        panes={[{ name: 'RSSI Viewer(Hephi)', Main: Chart }]}
     />
 );

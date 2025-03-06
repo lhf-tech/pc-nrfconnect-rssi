@@ -1,12 +1,12 @@
 {
     "name": "pc-nrfconnect-rssi",
     "version": "1.7.2",
-    "displayName": "RSSI Viewer",
+    "displayName": "RSSI Viewer(Hephi)",
     "description": "Live visualization of RSSI vs frequency in the 2.4 GHz band",
     "homepage": "https://github.com/NordicSemiconductor/pc-nrfconnect-rssi",
     "repository": {
         "type": "git",
-        "url": "https://github.com/NordicSemiconductor/pc-nrfconnect-rssi.git"
+        "url": "https://github.com/lhf-tech/pc-nrfconnect-rssi.git"
     },
     "author": "Nordic Semiconductor ASA",
     "license": "SEE LICENSE IN LICENSE",

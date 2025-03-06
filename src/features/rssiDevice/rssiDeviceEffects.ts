@@ -25,8 +25,8 @@ export const deviceSetupConfig: DeviceSetupConfig = {
             [
                 {
                     key: 'pca10059',
-                    application: getAppFile('fw/rssi-10059.hex'),
-                    semver: 'rssi_cdc_acm 2.0.0+dfuMay-22-2018-10-43-22',
+                    application: getAppFile('fw/rssi-10059-hephi.hex'),
+                    semver: 'rssi_cdc_acm 1.10.1+dfuOct--5-2021-08-31-26',
                     params: {},
                 },
             ],
@@ -43,8 +43,8 @@ export const deviceSetupConfig: DeviceSetupConfig = {
             [
                 {
                     key: 'nrf52_family',
-                    fw: getAppFile('fw/rssi-10040.hex'),
-                    fwVersion: 'rssi-fw-1.0.0',
+                    fw: getAppFile('fw/rssi-10040-hephi.hex'),
+                    fwVersion: 'rssi-fw-1.10.1',
                     fwIdAddress: 0x2000,
                 },
             ],

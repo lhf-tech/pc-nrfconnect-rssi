@@ -9,7 +9,6 @@ import { Bar } from 'react-chartjs-2';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     Alert,
-    bleChannels,
     getReadbackProtection,
     Main,
     selectedDevice,
@@ -21,10 +20,12 @@ import { recoverHex } from '../rssiDevice/rssiDeviceEffects';
 import {
     getAnimationDuration,
     getChannelRangeSorted,
+    getIsPaused,
     getLevelRangeSorted,
     getNoDataReceived,
     getRssi,
     getRssiMax,
+    nrfChannels,
 } from '../rssiDevice/rssiDeviceSlice';
 import color from './rssiColors';
 
@@ -32,22 +33,39 @@ import './alert.scss';
 
 Chart.register(ChartDataLabels, BarElement, CategoryScale, LinearScale);
 
-const rssiColors = bleChannels.map(channel =>
-    bleChannels.isAdvertisement(channel)
-        ? color.bar.advertisement
-        : color.bar.normal
-);
+const FREQ_ADV_CHANNEL_37 = 2; /** <Radio channel number which corresponds with 37-th BLE channel * */
+const FREQ_ADV_CHANNEL_38 = 26; /** <Radio channel number which corresponds with 38-th BLE channel * */
+const FREQ_ADV_CHANNEL_39 = 80; /** <Radio channel number which corresponds with 39-th BLE channel * */
 
-const rssiMaxColors = bleChannels.map(channel =>
-    bleChannels.isAdvertisement(channel)
-        ? color.bar.advertisementMax
-        : color.bar.normalMax
-);
+const rssiColors = nrfChannels.map(channel => {
+    if (
+        channel === FREQ_ADV_CHANNEL_37 ||
+        channel === FREQ_ADV_CHANNEL_38 ||
+        channel === FREQ_ADV_CHANNEL_39
+    )
+        return color.bar.advertisement;
+    if (channel < 0) return color.bar.extend;
+    if (channel > 83) return color.bar.extend2;
+    return color.bar.normal;
+});
 
-const labels = bleChannels;
+const rssiMaxColors = nrfChannels.map(channel => {
+    if (
+        channel === FREQ_ADV_CHANNEL_37 ||
+        channel === FREQ_ADV_CHANNEL_38 ||
+        channel === FREQ_ADV_CHANNEL_39
+    )
+        return color.bar.advertisementMax;
+    if (channel < 0) return color.bar.extendMax;
+    if (channel > 83) return color.bar.extendMax2;
+    return color.bar.normalMax;
+});
 
-const selectBLEValues = (allData: readonly number[]) =>
-    allData.slice(2).filter((_, index) => index % 2 === 0);
+const labels = nrfChannels;
+
+const selectBLEValues = (allData: readonly number[]) => allData.slice(0);
+// const selectBLEValues = (allData: readonly number[]) =>
+//    allData.slice(2).filter((_, index) => index % 2 === 0);
 
 const isInRange = ([min, max]: readonly [number, number], value: number) =>
     value >= min && value <= max;
@@ -55,6 +73,7 @@ const isInRange = ([min, max]: readonly [number, number], value: number) =>
 export default () => {
     const rssi = useSelector(getRssi);
     const rssiMax = useSelector(getRssiMax);
+    const isPaused = useSelector(getIsPaused);
     const animationDuration = useSelector(getAnimationDuration);
     const channelRange = useSelector(getChannelRangeSorted);
     const [levelMin, levelMax] = useSelector(getLevelRangeSorted);
@@ -71,7 +90,7 @@ export default () => {
     };
 
     const maskValuesOutsideChannelRange = (value: number, index: number) =>
-        isInRange(channelRange, bleChannels[index]) ? value : levelMin - 1;
+        isInRange(channelRange, nrfChannels[index]) ? value : levelMin - 1;
 
     const convertToScreenValue = (rawRssi: readonly number[]) =>
         selectBLEValues(rawRssi)
@@ -129,10 +148,10 @@ export default () => {
                                     },
                                 },
                                 {
-                                    label: 'bgBars',
+                                    label: 'range',
                                     backgroundColor: color.bar.background,
                                     borderWidth: 0,
-                                    data: Array(81).fill(levelMax),
+                                    data: Array(168).fill(levelMax),
                                     datalabels: { display: false },
                                 },
                             ],
@@ -143,7 +162,26 @@ export default () => {
                             maintainAspectRatio: false,
                             plugins: {
                                 legend: { display: false },
-                                tooltip: { enabled: false },
+                                tooltip: {
+                                    enabled: isPaused,
+                                    mode: 'index',
+                                    callbacks: {
+                                        title: tooltipItem =>
+                                            `Channel: ${
+                                                tooltipItem[0].dataIndex - 40
+                                            } \nFrequency: ${
+                                                2400 +
+                                                tooltipItem[0].dataIndex -
+                                                40
+                                            } MHz\nRssi: -${
+                                                rssi[tooltipItem[0].dataIndex]
+                                            } dBm\nRssiMax: -${
+                                                rssiMax[
+                                                    tooltipItem[0].dataIndex
+                                                ]
+                                            } dBm`,
+                                    },
+                                },
                             },
                             scales: {
                                 xAxesTop: {
@@ -152,7 +190,7 @@ export default () => {
                                     offset: true,
                                     ticks: {
                                         callback: (_, index: number) =>
-                                            String(bleChannels[index]).padStart(
+                                            String(nrfChannels[index]).padStart(
                                                 2,
                                                 '0'
                                             ),
@@ -165,7 +203,7 @@ export default () => {
                                     stacked: true,
                                     title: {
                                         display: true,
-                                        text: 'Bluetooth Low Energy Channel',
+                                        text: 'nRF 2.4G Channel',
                                         color: color.label,
                                         font: { size: 14 },
                                     },
@@ -182,7 +220,7 @@ export default () => {
                                     offset: true,
                                     ticks: {
                                         callback: (_, index) =>
-                                            2402 + 2 * index,
+                                            2402 + nrfChannels[index],
                                         minRotation: 90,
                                         labelOffset: 0,
                                         autoSkipPadding: 5,

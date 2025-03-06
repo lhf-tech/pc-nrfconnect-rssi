@@ -1,4 +1,10 @@
 /*
+ * @文件路径         : \pc-nrfconnect-rssi\src\app\SidePanel\ChannelRange.tsx
+ * @作者名称         : timetech
+ * @创建日期         : 2024-04-23 14:20:53
+ * @简要说明         : 
+ */
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
@@ -7,7 +13,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-    bleChannels,
     NumberInlineInput,
     Slider,
 } from '@nordicsemiconductor/pc-nrfconnect-shared';
@@ -15,6 +20,7 @@ import {
 import {
     getChannelRange,
     setChannelRange,
+    nrfChannelsRange,
 } from '../../features/rssiDevice/rssiDeviceSlice';
 
 export default () => {
@@ -30,7 +36,7 @@ export default () => {
                 Channels from{' '}
                 <NumberInlineInput
                     value={min}
-                    range={{ min: bleChannels.min, max }}
+                    range={{ min: nrfChannelsRange.min, max }}
                     onChange={(newMin: number) =>
                         dispatch(setChannelRange([newMin, max]))
                     }
@@ -38,7 +44,7 @@ export default () => {
                 to{' '}
                 <NumberInlineInput
                     value={max}
-                    range={{ min, max: bleChannels.max }}
+                    range={{ min, max: nrfChannelsRange.max }}
                     onChange={(newMax: number) =>
                         dispatch(setChannelRange([min, newMax]))
                     }
@@ -46,7 +52,7 @@ export default () => {
             </div>
             <Slider
                 values={channelRange}
-                range={{ min: bleChannels.min, max: bleChannels.max }}
+                range={{ min: nrfChannelsRange.min, max: nrfChannelsRange.max }}
                 onChange={[
                     newValue =>
                         dispatch(setChannelRange([newValue, channelRange[1]])),
